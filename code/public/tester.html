@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>Users API Tester</title>
+<h1>Users API Tester</h1>
+<label>Base URL: <input id="base" value="http://127.0.0.1:8080"></label>
+<pre id="out"></pre><button id="do">Run All</button>
+<script>
+const out=document.getElementById('out'); const base=()=>document.getElementById('base').value.replace(/\/+$/,''); let token='';
+const log=(t,d)=>out.textContent+=`\n=== ${t} ===\n`+JSON.stringify(d,null,2)+'\n';
+async function j(m,p,b,a){const r=await fetch(base()+p,{method:m,headers:{'Content-Type':'application/json',...(a?{'Authorization':'Bearer '+token}:{})},body:b?JSON.stringify(b):undefined});let d;try{d=await r.json()}catch{d={status:r.status}}return{status:r.status,data:d}}
+document.getElementById('do').onclick=async()=>{
+  out.textContent='';
+  let r=await j('POST','/auth/register',{name:'Ada',email:'ada@example.com',password:'P@ssw0rd'}); log('register',r);
+  r=await j('POST','/auth/login',{email:'ada@example.com',password:'P@ssw0rd'}); token=r.data.token||''; log('login',r);
+  log('GET /users', await j('GET','/users'));
+  log('GET /users/me', await j('GET','/users/me', null, true));
+};
+</script>
